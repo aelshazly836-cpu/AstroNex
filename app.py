@@ -5,7 +5,6 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
-from modules.ai_engine import run_tool
 
 
 # ---------------- CONFIG ----------------
@@ -92,7 +91,7 @@ st.sidebar.title("Navigation")
 
 page = st.sidebar.radio(
     "Choose Section",
-    ["Overview", "Biomarker Explorer", "Raw Data", "AI Assistant"]
+    ["Overview", "Biomarker Explorer", "Raw Data"]
 )
 
 st.sidebar.divider()
@@ -376,30 +375,6 @@ elif page == "Raw Data":
         file_name="astronex_filtered_data.csv",
         mime="text/csv"
     )
-# ---------------- AI ASSISTANT ----------------
-
-elif page == "AI Assistant":
-
-    st.subheader("AstroNex AI Assistant")
-
-    st.caption(
-        "AI tools for experimental biomedical data analysis."
-    )
-
-
-    if st.button("Run Stress Analysis", type="primary"):
-
-        stress_file = (
-            Path("data/processed/PhysioNet_STRESS/")
-            / "f14_b_stress_features.csv"
-        )
-
-        result = run_tool(
-            "stress_analyzer",
-            file_path=stress_file
-        )
-
-        # ---------------- FOOTER ----------------
 
 st.divider()
 

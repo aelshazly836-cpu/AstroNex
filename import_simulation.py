@@ -37,12 +37,11 @@ with sqlite3.connect(DB) as conn:
             if exists:
                 skipped += 1
                 continue
-
             conn.execute(
                 """INSERT INTO health_readings
                    (astronaut_id, heart_rate, systolic_bp, diastolic_bp,
-                    spo2, temperature, sleep_hours, recorded_at)
-                   VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+                    spo2, temperature, sleep_hours, recorded_at, is_test)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                 (
                     astronaut_id,
                     float(row["heart_rate"]),
@@ -51,11 +50,11 @@ with sqlite3.connect(DB) as conn:
                     float(row["spo2"]),
                     float(row["temperature"]),
                     float(row["sleep_hours"]),
-                    timestamp
+                    timestamp,
+                    1
                 )
             )
             imported += 1
-
 print(f"Imported: {imported}")
 print(f"Skipped duplicates: {skipped}")
 print("Simulation data import completed.")

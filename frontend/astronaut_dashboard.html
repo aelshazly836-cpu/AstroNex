@@ -1,0 +1,1922 @@
+﻿<!DOCTYPE html>
+<html lang="en" style="--bg:#081725;--panel:#11283c;--panel2:#18354d;--line:#2a4962;--text:#edf6ff;--muted:#a9bdcf;--accent:#7ccfc4;--accent2:#b5d8cf;--font-size:16px">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AstroNex — Astronaut Dashboard</title>
+
+<style>
+:root{
+ --bg:#081725;--panel:#11283c;--panel2:#18354d;
+ --line:#2a4962;--text:#edf6ff;--muted:#a9bdcf;
+ --accent:#7ccfc4;--accent2:#b5d8cf;
+ --good:#75d6ad;--mid:#f0c77b;--high:#ed9292;
+ --font-size:16px;
+ --nature-background:none;
+}
+*{box-sizing:border-box}
+body{
+ margin:0;
+ background-color:var(--bg);
+ background-image:linear-gradient(rgba(4,13,23,.62),rgba(4,13,23,.82)),var(--nature-background);
+ background-size:cover;
+ background-position:center;
+ background-attachment:fixed;
+ background-repeat:no-repeat;
+ color:var(--text);
+ font-family:Arial,Helvetica,sans-serif;
+ font-size:var(--font-size);
+ line-height:1.55;
+ transition:background-color .3s,color .3s,background-image .3s;
+}
+.dashboard-container{width:min(1100px,92%);margin:32px auto}
+.header{
+ display:flex;justify-content:space-between;align-items:center;
+ gap:16px;flex-wrap:wrap;margin-bottom:24px;
+ border-bottom:2px solid var(--line);padding-bottom:16px;
+}
+.profile-section{display:flex;align-items:center;gap:12px}
+.profile-avatar-container{
+ position:relative;width:55px;height:55px;padding:0;
+ border-radius:50%;border:2px solid var(--accent);
+ overflow:hidden;background:var(--panel2);color:var(--text);
+ display:flex;justify-content:center;align-items:center;cursor:pointer;
+}
+.profile-avatar-container img{width:100%;height:100%;object-fit:cover}
+.profile-avatar-placeholder{font-size:20px;color:var(--muted)}
+.brand-bar{
+ background:linear-gradient(135deg,var(--panel2),var(--panel));
+ border:2px solid var(--accent);padding:10px 24px;
+ border-radius:30px;box-shadow:0 4px 15px rgba(0,0,0,.25);
+ display:inline-flex;align-items:center;gap:10px;
+}
+.brand-title{
+ font-size:1.8em;font-weight:800;margin:0;letter-spacing:1.5px;
+ color:var(--accent);text-transform:uppercase;text-shadow:0 0 8px var(--accent2);
+}
+.section-title{font-size:1.2em;margin:24px 0 12px}
+.vitals-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.card,.panel,.recommendations{
+ background:var(--panel);border:1px solid var(--line);
+ border-radius:14px;padding:19px;
+ transition:background .3s,border-color .3s;
+}
+.card h3{font-size:1em;color:var(--muted);font-weight:500;margin:0 0 10px}
+.value{font-size:2em;font-weight:700}
+.unit{font-size:.48em;color:var(--muted);font-weight:400}
+.subvalue,.hint{font-size:.82em;color:var(--muted);margin-top:5px}
+.stress-head{
+ display:flex;justify-content:space-between;gap:12px;
+ align-items:center;flex-wrap:wrap;
+}
+.score{font-size:1.65em;font-weight:700}
+.gauge-bar{height:12px;background:#294257;border-radius:20px;overflow:hidden;margin:14px 0 8px}
+.gauge-fill{height:100%;width:0;background:var(--good);border-radius:20px;transition:width .3s}
+.status-text{font-size:.92em;color:var(--muted)}
+.recommendations{margin-top:14px;border-left:4px solid var(--accent)}
+.recommendations h3{margin:0 0 7px;font-size:1.08em}
+.recommendations p{margin:0;color:var(--text);white-space:pre-line}
+.controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:15px 0}
+select,input[type=number],input[type=range],input[type=time],button,textarea{font:inherit}
+select,input[type=number],input[type=time],textarea{
+ background:var(--panel2);color:var(--text);
+ border:1px solid var(--line);border-radius:8px;padding:9px 11px;
+}
+textarea{width:100%;min-height:110px;resize:vertical}
+button{
+ background:var(--panel2);color:var(--text);
+ border:1px solid var(--line);border-radius:8px;
+ padding:8px 12px;cursor:pointer;transition:border-color .3s;
+}
+button:hover{border-color:var(--accent)}
+button:disabled{opacity:.5;cursor:not-allowed}
+.settings-grid,.activity-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.setting{display:flex;flex-direction:column;gap:9px}
+input[type=file]{max-width:100%;color:var(--muted)}
+audio{width:100%;margin-top:10px}
+.activity-metric{background:var(--panel2);border-radius:10px;padding:13px}
+.activity-metric label{display:block;color:var(--muted);font-size:.9em;margin-bottom:6px}
+.activity-metric input,.activity-metric select{width:100%}
+.small-note{font-size:.8em;color:var(--muted);margin-top:14px}
+.data-source{display:inline-block;padding:3px 9px;border-radius:20px;background:var(--panel2);color:var(--accent);font-size:.78em}
+/* SMART HEALTH ANALYSIS */
+#smartHealthPanel{margin-top:24px}
+.health-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:16px}
+.health-card{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:15px}
+.health-card h3{margin:0 0 8px;color:var(--accent);font-size:1em}
+.health-card p{margin:5px 0}
+.health-alert,.health-ok{padding:12px;margin-top:12px;background:var(--panel2);border-radius:8px}
+.health-alert{border-left:4px solid var(--mid)}
+.health-ok{border-left:4px solid var(--good)}
+.health-alert-item{border-bottom:1px solid var(--line);padding:10px 0}
+.health-alert-item:last-child{border-bottom:0}
+.alert-history-item{padding:10px;margin-top:8px;border:1px solid var(--line);border-radius:8px;background:var(--panel2)}
+
+/* RECOMMENDED ACTIONS */
+.action-card{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:15px;margin-top:12px}
+.action-card h4{margin:0 0 8px;color:var(--accent);font-size:1.05em}
+.action-card p{margin:8px 0}
+.priority{display:inline-block;padding:3px 9px;border-radius:20px;font-size:.78em;font-weight:bold;margin-bottom:8px}
+.priority-low{background:#244b3c;color:#9ce5bd}
+.priority-medium{background:#594725;color:#ffe0a0}
+.priority-high{background:#5a3030;color:#ffb0b0}
+.action-label{color:var(--muted);font-weight:bold}
+
+/* PSYCHOLOGICAL WELLBEING */
+#psychologicalWellbeing{margin-top:24px}
+.wellbeing-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:14px}
+.wellbeing-card{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:16px;min-width:0}
+.wellbeing-card h3{color:var(--accent);margin:0 0 12px;font-size:1.05em}
+.wellbeing-card label{display:block;margin:10px 0 6px;color:var(--muted)}
+.wellbeing-card select,.wellbeing-card textarea{width:100%}
+.wellbeing-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.wellbeing-result{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:13px;margin-top:12px}
+.wellbeing-entry{border-bottom:1px solid var(--line);padding:12px 0}
+.wellbeing-entry:last-child{border-bottom:0}
+.wellbeing-entry p{margin:5px 0;overflow-wrap:anywhere}
+.wellbeing-private{color:var(--muted);font-size:.82em;margin-top:10px}
+.wellbeing-delete{border-color:var(--high)}
+
+/* OFFLINE NATURAL BACKGROUND GALLERY */
+.background-gallery{
+ display:grid;
+ grid-template-columns:repeat(3,minmax(0,1fr));
+ gap:12px;
+ margin-top:14px;
+}
+.background-option{
+ min-height:120px;
+ border:2px solid var(--line);
+ border-radius:12px;
+ background-size:cover;
+ background-position:center;
+ display:flex;
+ align-items:flex-end;
+ padding:12px;
+ color:white;
+ font-weight:bold;
+ text-shadow:0 2px 5px #000;
+ position:relative;
+ overflow:hidden;
+ text-align:left;
+}
+.background-option.active{
+ border-color:var(--accent);
+ outline:2px solid var(--accent);
+}
+.background-option.active::after{
+ content:"✓ Selected";
+ position:absolute;
+ top:8px;
+ right:8px;
+ background:rgba(0,0,0,.65);
+ padding:3px 8px;
+ border-radius:20px;
+ font-size:12px;
+}
+.background-option:focus-visible{
+ outline:3px solid var(--accent);
+ outline-offset:3px;
+}
+.background-reset{margin-top:12px}
+/* HEALTH ANALYTICS CHARTS */
+.charts-grid{
+ display:grid;
+ grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:14px;
+ margin-top:16px;
+}
+
+.health-chart-card{
+ min-width:0;
+ padding:16px;
+ background:var(--panel2);
+ border:1px solid var(--line);
+ border-radius:12px;
+}
+
+.health-chart-card h3{
+ margin:0;
+ color:var(--accent);
+ font-size:1em;
+}
+
+.health-chart-card canvas{
+ display:block;
+ width:100%;
+ height:220px;
+ margin-top:12px;
+}
+
+.chart-legend{
+ display:flex;
+ flex-wrap:wrap;
+ gap:16px;
+ color:var(--muted);
+ font-size:.8em;
+ margin-top:8px;
+}
+
+@media(max-width:720px){
+ .charts-grid{grid-template-columns:1fr}
+}
+@media(max-width:720px){
+ .vitals-grid,.settings-grid,.activity-grid,.health-grid,.wellbeing-grid{grid-template-columns:1fr}
+ .background-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .dashboard-container{margin:20px auto}
+ .brand-title{font-size:1.4em}
+}
+</style>
+</head>
+
+<body>
+<main class="dashboard-container">
+
+<header class="header">
+ <div class="brand-bar"><h1 class="brand-title">AstroNex</h1></div>
+ <div class="profile-section">
+  <button class="profile-avatar-container" type="button" id="avatarButton" aria-label="Upload profile image">
+   <img id="avatarImage" src="" alt="" style="display:none">
+   <span id="avatarPlaceholder" class="profile-avatar-placeholder">👤</span>
+  </button>
+  <input type="file" id="avatarInput" accept="image/*" hidden>
+ </div>
+<button type="button" id="generateReport">
+  📄 Generate Health Report
+</button>
+</header>
+<!-- HEALTH ANALYTICS -->
+<section class="panel" id="healthCharts">
+  <div class="stress-head">
+    <div>
+      <h2 class="section-title" style="margin-top:0">📊 Health Analytics</h2>
+      <p class="hint">Explore recorded health measurements over time.</p>
+    </div>
+    <button type="button" id="refreshCharts">↻ Refresh</button>
+  </div>
+
+  <div class="charts-grid">
+    <article class="health-chart-card">
+      <h3>❤️ Heart Rate</h3>
+      <p class="hint">Beats per minute (BPM)</p>
+      <canvas id="heartRateChart"></canvas>
+    </article>
+
+    <article class="health-chart-card">
+      <h3>🌙 Sleep Duration</h3>
+      <p class="hint">Hours of sleep</p>
+      <canvas id="sleepChart"></canvas>
+    </article>
+
+    <article class="health-chart-card">
+      <h3>🩺 Blood Pressure</h3>
+      <p class="hint">Systolic and diastolic · mmHg</p>
+      <canvas id="bloodPressureChart"></canvas>
+      <div class="chart-legend">
+        <span>🔵 Systolic</span>
+        <span>🟢 Diastolic</span>
+      </div>
+    </article>
+
+    <article class="health-chart-card">
+      <h3>〰️ HRV</h3>
+      <p class="hint">Heart rate variability</p>
+      <canvas id="hrvChart"></canvas>
+    </article>
+  </div>
+
+  <p id="chartStatus" class="small-note" aria-live="polite">
+    Waiting for measurements...
+  </p>
+</section>
+
+<!-- VITAL SIGNS -->
+<h2 class="section-title">Vital Signs</h2>
+<div class="controls">
+ <label for="daySelect">Monitoring period:</label>
+ <select id="daySelect"></select>
+ <span id="dataSourceBadge" class="data-source">Waiting for Test Lab data</span>
+</div>
+<section class="vitals-grid">
+ <article class="card">
+  <h3>Heart Rate</h3>
+  <div class="value"><span id="heartRate">—</span><span class="unit"> bpm</span></div>
+  <div class="subvalue" id="heartRateTip">Waiting for a measurement</div>
+ </article>
+ <article class="card">
+  <h3>Sleep Duration</h3>
+  <div class="value"><span id="sleepHours">—</span><span class="unit"> hours</span></div>
+  <div class="subvalue" id="sleepTip">Total sleep</div>
+ </article>
+ <article class="card">
+  <h3>Blood Pressure</h3>
+  <div class="value"><span id="bloodPressure">—</span></div>
+  <div class="subvalue" id="bloodPressureTip">mmHg</div>
+ </article>
+</section>
+
+<!-- FATIGUE -->
+<h2 class="section-title">Estimated Fatigue Level</h2>
+<section class="panel">
+ <div class="stress-head">
+  <div>Fatigue estimate</div>
+  <div class="score"><span id="fatigueScore">—</span><span class="unit"> / 100</span></div>
+ </div>
+ <div class="gauge-bar"><div class="gauge-fill" id="gaugeFill"></div></div>
+ <div class="status-text" id="fatigueStatus">Waiting for measurements</div>
+ <p class="small-note">This is a simplified demonstration estimate, not a medical assessment.</p>
+</section>
+
+<!-- PHYSICAL ACTIVITY -->
+<h2 class="section-title">Physical Activity</h2>
+<section class="panel">
+ <p>Choose an activity you can do in space, then set a timer.</p>
+ <div class="activity-grid" style="margin-top:14px">
+  <div class="activity-metric">
+   <label for="activitySelect">Choose an activity</label>
+   <select id="activitySelect">
+    <option value="Breathe slowly">Breathe slowly</option>
+    <option value="Stretch gently while secured">Stretch gently while secured</option>
+    <option value="Gently move your arms and shoulders">Gently move your arms and shoulders</option>
+    <option value="Take a mindful pause">Take a mindful pause</option>
+   </select>
+  </div>
+  <div class="activity-metric">
+   <label for="timerDuration">Timer duration</label>
+   <select id="timerDuration">
+    <option value="1">1 minute</option>
+    <option value="3">3 minutes</option>
+    <option value="5" selected>5 minutes</option>
+    <option value="10">10 minutes</option>
+   </select>
+  </div>
+ </div>
+ <div class="stress-head" style="margin-top:16px">
+  <span id="timerActivity">Breathe slowly</span><strong id="activityTimer">05:00</strong>
+ </div>
+ <div class="controls">
+  <button type="button" id="startTimer">Start</button>
+  <button type="button" id="resetTimer">Reset</button>
+ </div>
+ <div id="timerSurprise" class="recommendations" hidden>
+  <h3>You did it!</h3><p id="timerMessage"></p>
+ </div>
+</section>
+
+<!-- ALARM CLOCK -->
+<h2 class="section-title">Alarm Clock</h2>
+<section class="panel">
+ <div class="activity-grid">
+  <div class="activity-metric">
+   <label for="alarmTime">Set alarm time</label>
+   <input type="time" id="alarmTime">
+  </div>
+  <div class="activity-metric">
+   <label for="alarmSound">Choose an alarm sound</label>
+   <select id="alarmSound">
+    <option value="chime">Gentle chime</option>
+    <option value="double">Double chime</option>
+    <option value="bell">Soft bell</option>
+   </select>
+  </div>
+ </div>
+ <div class="controls">
+  <button type="button" id="setAlarm">Set Alarm</button>
+  <button type="button" id="stopAlarm" disabled>Stop Alarm</button>
+ </div>
+ <p id="alarmStatus" class="hint">No alarm set.</p>
+ <p class="hint">The alarm is independent of the activity timer. Keep this page open for it to ring.</p>
+</section>
+
+<!-- DIARY NOTE -->
+<h2 class="section-title">Diary Note</h2>
+<section class="panel">
+ <label for="diaryNote">Add a note for the selected day</label>
+ <textarea id="diaryNote" maxlength="1000" placeholder="Record how you felt, recovery observations, or anything you want to remember."></textarea>
+ <p class="hint">Notes are kept for each day while this page is open.</p>
+</section>
+
+<!-- EARTH SOUNDS -->
+<h2 class="section-title">Earth Sounds</h2>
+<section class="panel">
+ <p>Select a relaxing nature sound or upload a custom file.</p>
+ <div class="controls">
+  <label for="soundType">Sound category:</label>
+  <select id="soundType">
+   <option value="Forest">Forest & Birds</option>
+   <option value="Ocean">Ocean Waves</option>
+   <option value="Rain">Gentle Rain</option>
+   <option value="Wind">Soft Wind</option>
+  </select>
+ </div>
+ <div class="setting">
+  <audio id="earthAudio" controls loop preload="auto"></audio>
+  <label for="volumeControl">Volume</label>
+  <input id="volumeControl" type="range" min="0" max="1" step="0.05" value="0.5">
+  <label for="audioFile">Upload custom audio file (MP3/WAV):</label>
+  <input type="file" id="audioFile" accept="audio/*">
+ </div>
+</section>
+
+<!-- COMFORT AND ACCESSIBILITY -->
+<h2 class="section-title">Comfort &amp; Accessibility</h2>
+<section class="panel">
+ <div class="settings-grid">
+  <div class="setting">
+   <label for="themeSelect">Choose a calm color theme</label>
+   <select id="themeSelect">
+    <option value="ocean">Soft Ocean</option>
+    <option value="forest">Sage Forest</option>
+    <option value="lavender">Quiet Lavender</option>
+    <option value="sand">Warm Sand</option>
+   </select>
+  </div>
+  <div class="setting">
+   <label>Text size</label>
+   <div class="controls" style="margin:0">
+    <button type="button" id="smallerText">A−</button>
+    <button type="button" id="normalText">Default</button>
+    <button type="button" id="largerText">A+</button>
+   </div>
+  </div>
+ </div>
+
+ <!-- NEW OFFLINE BACKGROUND GALLERY -->
+ <hr style="border-color:var(--line);margin:22px 0">
+ <h3>🌿 Natural Background Gallery</h3>
+ <p class="hint">Choose a natural landscape. All backgrounds are built into this page and work offline.</p>
+ <div class="background-gallery" id="backgroundGallery">
+  <button class="background-option" data-background="forest" type="button">Forest 🌲</button>
+  <button class="background-option" data-background="mountains" type="button">Mountains 🏔️</button>
+  <button class="background-option" data-background="ocean" type="button">Ocean 🌊</button>
+  <button class="background-option" data-background="lake" type="button">Lake 🏞️</button>
+  <button class="background-option" data-background="sunset" type="button">Sunset 🌅</button>
+  <button class="background-option" data-background="night" type="button">Night Sky 🌌</button>
+ </div>
+ <button type="button" id="resetBackground" class="background-reset">Reset Background</button>
+ <p class="small-note">Your background choice is saved in this browser.</p>
+ <p class="small-note">Your display preferences apply to this page while it is open.</p>
+</section>
+
+<!-- SMART HEALTH ANALYSIS -->
+<section class="panel" id="smartHealthPanel">
+ <h2>🧠 Smart Health Analysis</h2>
+ <p class="hint">Experimental astronaut health trend monitoring</p>
+ <div class="health-grid">
+  <div class="health-card"><h3>❤️ Heart Rate Trend</h3><p id="hrAnalysis">Waiting for data...</p></div>
+  <div class="health-card"><h3>💤 Sleep Patterns</h3><p id="sleepAnalysis">Waiting for data...</p></div>
+  <div class="health-card"><h3>🧬 HRV Analysis</h3><p id="hrvAnalysis">Waiting for data...</p></div>
+  <div class="health-card"><h3>🏃 Activity Analysis</h3><p id="activityAnalysis">Waiting for data...</p></div>
+ </div>
+ <h3 class="section-title">⚠️ Current Alerts</h3>
+ <div id="smartHealthResult" aria-live="polite">Waiting for measurements...</div>
+ <h3 class="section-title">🩺 Recommended Actions</h3>
+ <div id="recommendedActions" aria-live="polite"><p class="hint">Waiting for health analysis...</p></div>
+ <h3 class="section-title">📋 Alert History</h3>
+ <div id="alertHistory"><p class="hint">No alerts recorded.</p></div>
+ <p class="small-note">Experimental trend analysis only. Alerts and recommendations are not medical diagnoses. Simulated measurements must not be treated as real medical data. Always follow approved mission medical protocols.</p>
+</section>
+
+<!-- PSYCHOLOGICAL WELLBEING -->
+<section class="panel" id="psychologicalWellbeing">
+ <h2 class="section-title">🧠 Psychological Wellbeing</h2>
+ <p class="hint">A self-check-in space for emotional wellbeing and social connection.</p>
+ <div class="wellbeing-grid">
+  <article class="wellbeing-card">
+   <h3>😊 Mood Check-in</h3>
+   <label for="moodSelect">How are you feeling today?</label>
+   <select id="moodSelect">
+    <option value="Very good">Very good</option><option value="Good">Good</option>
+    <option value="Okay" selected>Okay</option><option value="Difficult">Difficult</option>
+    <option value="Very difficult">Very difficult</option>
+   </select>
+   <label for="stressSelect">How would you rate your stress?</label>
+   <select id="stressSelect">
+    <option value="1">1 — Very low</option><option value="2">2 — Low</option>
+    <option value="3" selected>3 — Moderate</option><option value="4">4 — High</option>
+    <option value="5">5 — Very high</option>
+   </select>
+   <label for="connectionSelect">How connected do you feel to others?</label>
+   <select id="connectionSelect">
+    <option value="1">1 — Not connected</option><option value="2">2 — Slightly connected</option>
+    <option value="3" selected>3 — Moderately connected</option><option value="4">4 — Connected</option>
+    <option value="5">5 — Very connected</option>
+   </select>
+   <div class="wellbeing-actions"><button type="button" id="saveWellbeing">Save Check-in</button></div>
+  </article>
+  <article class="wellbeing-card">
+   <h3>📓 Personal Wellbeing Diary</h3>
+   <label for="wellbeingNote">Write anything you would like to remember.</label>
+   <textarea id="wellbeingNote" maxlength="1000" placeholder="Your thoughts, feelings, or personal reflections..."></textarea>
+   <p class="wellbeing-private">Your entries are stored locally in this browser in this demo.</p>
+  </article>
+ </div>
+ <h3 class="section-title">📊 Wellbeing Overview</h3>
+ <div class="wellbeing-grid">
+  <article class="wellbeing-card"><h3>Latest Mood</h3><div class="value" id="latestMood">—</div><p class="hint" id="latestMoodDate">No check-in yet.</p></article>
+  <article class="wellbeing-card"><h3>Stress Level</h3><div class="value" id="latestStress">—</div><p class="hint">Self-reported rating out of 5</p></article>
+  <article class="wellbeing-card"><h3>Social Connection</h3><div class="value" id="latestConnection">—</div><p class="hint">Self-reported rating out of 5</p></article>
+  <article class="wellbeing-card"><h3>Recent Check-ins</h3><div class="value" id="checkinCount">0</div><p class="hint">Saved entries</p></article>
+ </div>
+ <h3 class="section-title">💡 Support Suggestions</h3>
+ <div id="wellbeingSuggestions" class="wellbeing-result" aria-live="polite">Complete a check-in to receive supportive suggestions.</div>
+ <h3 class="section-title">📅 Wellbeing History</h3>
+ <div id="wellbeingHistory" class="wellbeing-result"><p class="hint">No check-ins recorded yet.</p></div>
+ <div class="wellbeing-actions"><button type="button" id="deleteWellbeing" class="wellbeing-delete">Delete Wellbeing Data</button></div>
+ <p class="small-note">This feature records self-reported experiences only. It does not diagnose mental-health conditions or replace professional support. In a real mission, wellbeing information must be protected by appropriate privacy, consent, and access-control policies.</p>
+</section>
+</main>
+
+<script>
+"use strict";
+
+/* =====================================
+   OFFLINE NATURAL BACKGROUNDS
+===================================== */
+
+const BACKGROUND_STORAGE_KEY = "astronex_background_v1";
+
+const offlineBackgrounds = {
+ forest: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900">
+ <defs>
+  <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#163c50"/><stop offset="1" stop-color="#80a58b"/></linearGradient>
+  <linearGradient id="ground" x2="0" y2="1"><stop stop-color="#315b43"/><stop offset="1" stop-color="#102c27"/></linearGradient>
+ </defs>
+ <rect width="1600" height="900" fill="url(#sky)"/>
+ <circle cx="1250" cy="190" r="95" fill="#f2e8b7" opacity=".75"/>
+ <path d="M0 520 Q300 330 600 510 T1200 450 T1600 500 V900 H0Z" fill="#466e5a"/>
+ <path d="M0 650 Q400 440 800 620 T1600 590 V900 H0Z" fill="url(#ground)"/>
+ ${Array.from({length:32},(_,i)=>{const x=i*53;const h=180+(i*37%180);return `<path d="M${x} 720 L${x+25} ${720-h} L${x+50} 720Z" fill="${i%2?"#183d35":"#24533d"}"/><rect x="${x+22}" y="710" width="7" height="90" fill="#392f26"/>`;}).join("")}
+ </svg>`,
+
+ mountains: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900">
+ <defs><linearGradient id="sky" x2="0" y2="1"><stop stop-color="#19395b"/><stop offset="1" stop-color="#d0a77f"/></linearGradient></defs>
+ <rect width="1600" height="900" fill="url(#sky)"/>
+ <circle cx="1250" cy="210" r="90" fill="#f6d8a3"/>
+ <path d="M0 700 L350 190 L650 650 L900 280 L1300 730 L1500 390 L1600 520 V900 H0Z" fill="#4a6472"/>
+ <path d="M230 365 L350 190 L460 365 L390 340 L350 275 L310 340Z" fill="#e8edf0"/>
+ <path d="M780 430 L900 280 L1025 430 L950 405 L900 350 L850 405Z" fill="#e8edf0"/>
+ <path d="M1350 570 L1500 390 L1600 520 V900 H1350Z" fill="#293f4c"/>
+ <path d="M0 720 Q400 620 800 740 T1600 700 V900 H0Z" fill="#263f3a"/>
+ </svg>`,
+
+ ocean: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900">
+ <defs><linearGradient id="sky" x2="0" y2="1"><stop stop-color="#17466b"/><stop offset="1" stop-color="#e3a77e"/></linearGradient><linearGradient id="sea" x2="0" y2="1"><stop stop-color="#287e91"/><stop offset="1" stop-color="#092f4b"/></linearGradient></defs>
+ <rect width="1600" height="900" fill="url(#sky)"/>
+ <circle cx="1200" cy="230" r="105" fill="#ffe0a8" opacity=".9"/>
+ <path d="M0 480 Q200 450 400 480 T800 480 T1200 480 T1600 480 V900 H0Z" fill="url(#sea)"/>
+ <path d="M0 590 Q150 530 300 590 T600 590 T900 590 T1200 590 T1500 590 T1800 590" fill="none" stroke="#b5e3dc" stroke-width="9" opacity=".5"/>
+ <path d="M0 720 Q180 660 360 720 T720 720 T1080 720 T1440 720 T1800 720" fill="none" stroke="#9ed5d1" stroke-width="6" opacity=".35"/>
+ </svg>`,
+
+ lake: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900">
+ <defs><linearGradient id="sky" x2="0" y2="1"><stop stop-color="#6c9eb0"/><stop offset="1" stop-color="#e8c49b"/></linearGradient><linearGradient id="water" x2="0" y2="1"><stop stop-color="#729e9b"/><stop offset="1" stop-color="#254e58"/></linearGradient></defs>
+ <rect width="1600" height="900" fill="url(#sky)"/>
+ <circle cx="800" cy="260" r="85" fill="#fff0c5"/>
+ <path d="M0 510 L300 290 L570 520 L900 260 L1260 520 L1450 330 L1600 500 V900 H0Z" fill="#526e69"/>
+ <path d="M0 520 Q400 490 800 520 T1600 520 V900 H0Z" fill="url(#water)"/>
+ <path d="M600 540 L1000 540 L1150 900 H450Z" fill="#f3d4a5" opacity=".12"/>
+ <path d="M0 780 Q350 750 700 780 T1400 780 T1800 780" fill="none" stroke="#c1d8c7" stroke-width="5" opacity=".4"/>
+ </svg>`,
+
+ sunset: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900">
+ <defs><linearGradient id="sky" x2="0" y2="1"><stop stop-color="#493d69"/><stop offset=".48" stop-color="#d87968"/><stop offset="1" stop-color="#f5c58b"/></linearGradient></defs>
+ <rect width="1600" height="900" fill="url(#sky)"/>
+ <circle cx="800" cy="480" r="135" fill="#ffe0a0"/>
+ <path d="M0 620 Q300 540 600 630 T1200 600 T1600 620 V900 H0Z" fill="#4d4657"/>
+ <path d="M0 720 Q300 650 650 730 T1300 710 T1700 730 V900 H0Z" fill="#252c3c"/>
+ <path d="M690 630 L910 630 L1050 900 H550Z" fill="#e5a66f" opacity=".3"/>
+ </svg>`,
+
+ night: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900">
+ <defs><linearGradient id="sky" x2="0" y2="1"><stop stop-color="#07152f"/><stop offset="1" stop-color="#263f62"/></linearGradient></defs>
+ <rect width="1600" height="900" fill="url(#sky)"/>
+ <circle cx="1250" cy="190" r="75" fill="#f5f0d7"/>
+ <circle cx="1280" cy="160" r="70" fill="#142746"/>
+ ${Array.from({length:90},(_,i)=>{const x=(i*173)%1580+10;const y=(i*97)%450+15;const r=(i%3)+1;return `<circle cx="${x}" cy="${y}" r="${r}" fill="#fff6d9" opacity="${.4+(i%5)*.12}"/>`;}).join("")}
+ <path d="M0 650 L280 400 L510 650 L850 360 L1180 660 L1450 420 L1600 580 V900 H0Z" fill="#172c3d"/>
+ <path d="M0 760 Q400 680 800 760 T1600 750 V900 H0Z" fill="#091c2d"/>
+ </svg>`
+};
+
+function backgroundToDataUrl(svg){
+ return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+}
+
+function applyBackground(name,save=true){
+ if(!offlineBackgrounds[name]) return;
+
+ document.documentElement.style.setProperty(
+  "--nature-background",
+  `url("${backgroundToDataUrl(offlineBackgrounds[name])}")`
+ );
+
+ document.querySelectorAll(".background-option").forEach(button=>{
+  const selected = button.dataset.background === name;
+  button.classList.toggle("active",selected);
+  button.setAttribute("aria-pressed",String(selected));
+ });
+
+ if(save){
+  try{localStorage.setItem(BACKGROUND_STORAGE_KEY,name);}
+  catch(error){console.warn("Could not save background choice:",error);}
+ }
+}
+
+function initializeBackgroundGallery(){
+ document.querySelectorAll(".background-option").forEach(button=>{
+  const name = button.dataset.background;
+  const svg = offlineBackgrounds[name];
+  if(svg){
+   button.style.backgroundImage =
+    `linear-gradient(transparent,rgba(0,0,0,.55)),url("${backgroundToDataUrl(svg)}")`;
+  }
+  button.addEventListener("click",()=>applyBackground(name));
+ });
+
+ document.getElementById("resetBackground").addEventListener("click",()=>{
+  applyBackground("forest");
+ });
+
+ let savedBackground = "forest";
+ try{
+  savedBackground = localStorage.getItem(BACKGROUND_STORAGE_KEY) || "forest";
+ }catch(error){
+  console.warn("Could not read saved background:",error);
+ }
+ applyBackground(savedBackground,false);
+}
+
+/* =====================================
+   1. TEST LAB DATA CONNECTION
+===================================== */
+
+const STORAGE_KEY = "astronex_simulation_v1";
+const ALERT_STORAGE_KEY = "astronex_alert_history_v1";
+const WELLBEING_STORAGE_KEY = "astronex_wellbeing_v1";
+
+const daySelect = document.getElementById("daySelect");
+const diaryNote = document.getElementById("diaryNote");
+const dataSourceBadge = document.getElementById("dataSourceBadge");
+const diaryNotes = {};
+let records = [];
+let selectedRecordKey = null;
+
+function readTestLabData(){
+ try{
+  const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+  return {
+   astronaut:data.astronaut || null,
+   measurements:Array.isArray(data.measurements) ? data.measurements : []
+  };
+ }catch(error){
+  console.error("Could not read Test Lab data:",error);
+  return {astronaut:null,measurements:[]};
+ }
+}
+
+function convertMeasurement(item,index){
+ const date = item.timestamp ? new Date(item.timestamp) : null;
+ const validDate = date && !Number.isNaN(date.getTime());
+ const systolic = Number(item.systolic);
+ const diastolic = Number(item.diastolic);
+ const heartRate = Number(item.heartRate);
+ const sleep = Number(item.sleep);
+ const hrv = Number(item.hrv);
+
+ return {
+     systolic:item.systolic != null && Number.isFinite(systolic) ?       systolic : null,
+  diastolic:item.diastolic != null && Number.isFinite(diastolic) ? diastolic : null,
+  key:String(item.timestamp || index) + "_" + index,
+  period:validDate ? date.toLocaleString() : "Measurement " + (index+1),
+  sleep:item.sleep != null && Number.isFinite(sleep) ? sleep : null,
+  hr:item.heartRate != null && Number.isFinite(heartRate) ? heartRate : null,
+  hrv:item.hrv != null && Number.isFinite(hrv) ? hrv : null,
+  activity:item.activity || null,
+  bp:item.systolic != null && item.diastolic != null &&
+   Number.isFinite(systolic) && Number.isFinite(diastolic)
+    ? `${systolic}/${diastolic}` : "—"
+ };
+}
+
+function loadTestLabData(){
+ const data = readTestLabData();
+ records = data.measurements
+  .filter(item => item && typeof item === "object")
+  .map(convertMeasurement)
+  .reverse();
+
+ daySelect.innerHTML = "";
+
+ if(records.length === 0){
+  daySelect.disabled = true;
+  const option = document.createElement("option");
+  option.value = "";
+  option.textContent = "No Test Lab measurements yet";
+  daySelect.appendChild(option);
+  selectedRecordKey = null;
+  dataSourceBadge.textContent = "No Test Lab data";
+  render();
+  analyzeAstronautHealth();
+  return;
+ }
+
+ daySelect.disabled = false;
+ records.forEach(record=>{
+  const option = document.createElement("option");
+  option.value = record.key;
+  option.textContent = record.period;
+  daySelect.appendChild(option);
+ });
+
+ if(!records.some(record=>record.key === selectedRecordKey)){
+  selectedRecordKey = records[0].key;
+ }
+ daySelect.value = selectedRecordKey;
+
+ const astronautName = data.astronaut && data.astronaut.name
+  ? " · " + data.astronaut.name : "";
+ dataSourceBadge.textContent = records.length + " Test Lab measurement(s)" + astronautName;
+ render();
+ analyzeAstronautHealth();
+}
+
+/* =====================================
+   2. FATIGUE ESTIMATION
+===================================== */
+
+function estimateFatigue(record){
+ if(record.sleep === null || record.hr === null) return null;
+ const sleepContribution = Math.max(0,Math.min(72,(8-record.sleep)*18));
+ const heartRateContribution = Math.max(0,Math.min(28,(record.hr-60)*0.7));
+ const score = Math.round(Math.max(0,Math.min(100,sleepContribution+heartRateContribution)));
+ const level = score < 35 ? "Low" : score < 66 ? "Moderate" : "High";
+ return {score,level};
+}
+
+/* =====================================
+   3. DASHBOARD RENDERING
+===================================== */
+
+function render(){
+ const record = records.find(item=>item.key === daySelect.value) || records[0];
+
+ if(!record){
+  document.getElementById("heartRate").textContent = "—";
+  document.getElementById("sleepHours").textContent = "—";
+  document.getElementById("bloodPressure").textContent = "—";
+  document.getElementById("fatigueScore").textContent = "—";
+  document.getElementById("heartRateTip").textContent = "Waiting for Test Lab data";
+  document.getElementById("sleepTip").textContent = "Waiting for Test Lab data";
+  document.getElementById("bloodPressureTip").textContent = "Not recorded";
+  document.getElementById("fatigueStatus").textContent = "No measurements available yet.";
+  document.getElementById("gaugeFill").style.width = "0%";
+  diaryNote.value = "";
+  return;
+ }
+
+ selectedRecordKey = record.key;
+ document.getElementById("heartRate").textContent = record.hr !== null ? record.hr : "—";
+ document.getElementById("sleepHours").textContent = record.sleep !== null ? record.sleep.toFixed(1) : "—";
+ document.getElementById("bloodPressure").textContent = record.bp;
+ document.getElementById("heartRateTip").textContent = record.hr !== null ? "From Test Lab" : "Not recorded";
+ document.getElementById("sleepTip").textContent = record.sleep !== null ? "From Test Lab" : "Not recorded";
+ document.getElementById("bloodPressureTip").textContent = record.bp !== "—" ? "mmHg · From Test Lab" : "Not recorded";
+
+ const fatigue = estimateFatigue(record);
+ document.getElementById("fatigueScore").textContent = fatigue ? fatigue.score : "—";
+ document.getElementById("fatigueStatus").textContent = fatigue
+  ? "Estimated level: " + fatigue.level + " · Demonstration estimate, not a medical measurement"
+  : "Insufficient data to estimate fatigue.";
+
+ const gauge = document.getElementById("gaugeFill");
+ gauge.style.width = fatigue ? fatigue.score + "%" : "0%";
+ gauge.style.background = !fatigue ? "var(--good)" :
+  fatigue.level === "Low" ? "var(--good)" :
+  fatigue.level === "Moderate" ? "var(--mid)" : "var(--high)";
+ diaryNote.value = diaryNotes[record.key] || "";
+}
+
+daySelect.addEventListener("change",render);
+diaryNote.addEventListener("input",()=>{
+ if(selectedRecordKey) diaryNotes[selectedRecordKey] = diaryNote.value;
+});
+window.addEventListener("storage",event=>{
+ if(event.key === STORAGE_KEY) loadTestLabData();
+});
+
+let lastStorageValue = localStorage.getItem(STORAGE_KEY);
+setInterval(()=>{
+ const currentValue = localStorage.getItem(STORAGE_KEY);
+ if(currentValue !== lastStorageValue){
+  lastStorageValue = currentValue;
+  loadTestLabData();
+ }
+},1500);
+
+/* =====================================
+   4. ACTIVITY TIMER
+===================================== */
+
+const activitySelect = document.getElementById("activitySelect");
+const timerDuration = document.getElementById("timerDuration");
+const activityTimer = document.getElementById("activityTimer");
+const timerActivity = document.getElementById("timerActivity");
+const startTimerButton = document.getElementById("startTimer");
+const timerSurprise = document.getElementById("timerSurprise");
+let timerRemaining = Number(timerDuration.value)*60;
+let timerInterval = null;
+
+function displayTimer(){
+ const minutes = Math.floor(timerRemaining/60);
+ const seconds = timerRemaining%60;
+ activityTimer.textContent = String(minutes).padStart(2,"0") + ":" + String(seconds).padStart(2,"0");
+}
+function resetActivityTimer(){
+ clearInterval(timerInterval);
+ timerInterval = null;
+ timerRemaining = Number(timerDuration.value)*60;
+ startTimerButton.textContent = "Start";
+ timerActivity.textContent = activitySelect.value;
+ timerSurprise.hidden = true;
+ displayTimer();
+}
+function finishActivityTimer(){
+ clearInterval(timerInterval);
+ timerInterval = null;
+ timerRemaining = 0;
+ displayTimer();
+ startTimerButton.textContent = "Start";
+ document.getElementById("timerMessage").textContent =
+  "You made time for yourself and followed through — that’s a real win! Take a moment to enjoy how you feel.";
+ timerSurprise.hidden = false;
+}
+startTimerButton.addEventListener("click",()=>{
+ if(timerInterval){
+  clearInterval(timerInterval);
+  timerInterval = null;
+  startTimerButton.textContent = "Resume";
+  return;
+ }
+ if(timerRemaining <= 0) resetActivityTimer();
+ timerSurprise.hidden = true;
+ timerActivity.textContent = activitySelect.value;
+ startTimerButton.textContent = "Pause";
+ timerInterval = setInterval(()=>{
+  if(timerRemaining <= 1){finishActivityTimer();return;}
+  timerRemaining--;
+  displayTimer();
+ },1000);
+});
+document.getElementById("resetTimer").addEventListener("click",resetActivityTimer);
+timerDuration.addEventListener("change",resetActivityTimer);
+activitySelect.addEventListener("change",()=>{
+ timerActivity.textContent = activitySelect.value;
+ timerSurprise.hidden = true;
+});
+displayTimer();
+
+/* =====================================
+   5. ALARM CLOCK
+===================================== */
+
+const alarmTimeInput = document.getElementById("alarmTime");
+const alarmStatus = document.getElementById("alarmStatus");
+const stopAlarmButton = document.getElementById("stopAlarm");
+let alarmTarget = null;
+let alarmCheckInterval = null;
+let alarmRepeatInterval = null;
+let alarmAudioContext = null;
+
+function playAlarmSound(){
+ const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+ if(!AudioContextClass) return;
+ if(!alarmAudioContext) alarmAudioContext = new AudioContextClass();
+ if(alarmAudioContext.state === "suspended") alarmAudioContext.resume();
+ const sound = document.getElementById("alarmSound").value;
+ const notes = sound === "double" ? [660,880,660,880] :
+  sound === "bell" ? [523,659,784] : [784,988];
+
+ notes.forEach((frequency,index)=>{
+  const oscillator = alarmAudioContext.createOscillator();
+  const gain = alarmAudioContext.createGain();
+  const startAt = alarmAudioContext.currentTime + index*(sound === "double" ? 0.22 : 0.32);
+  oscillator.type = sound === "bell" ? "sine" : "triangle";
+  oscillator.frequency.value = frequency;
+  gain.gain.setValueAtTime(0.0001,startAt);
+  gain.gain.exponentialRampToValueAtTime(0.16,startAt+0.02);
+  gain.gain.exponentialRampToValueAtTime(0.0001,startAt+0.28);
+  oscillator.connect(gain);
+  gain.connect(alarmAudioContext.destination);
+  oscillator.start(startAt);
+  oscillator.stop(startAt+0.3);
+ });
+}
+
+document.getElementById("setAlarm").addEventListener("click",()=>{
+ if(!alarmTimeInput.value){
+  alarmStatus.textContent = "Choose a time before setting the alarm.";
+  return;
+ }
+ clearInterval(alarmCheckInterval);
+ clearInterval(alarmRepeatInterval);
+ alarmRepeatInterval = null;
+ const [hours,minutes] = alarmTimeInput.value.split(":").map(Number);
+ alarmTarget = new Date();
+ alarmTarget.setHours(hours,minutes,0,0);
+ if(alarmTarget <= new Date()) alarmTarget.setDate(alarmTarget.getDate()+1);
+ const displayTime = alarmTarget.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
+ alarmStatus.textContent = "Alarm set for " + displayTime + ".";
+ stopAlarmButton.disabled = false;
+ const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+ if(AudioContextClass && !alarmAudioContext) alarmAudioContext = new AudioContextClass();
+ if(alarmAudioContext && alarmAudioContext.state === "suspended") alarmAudioContext.resume();
+
+ alarmCheckInterval = setInterval(()=>{
+  if(alarmTarget && Date.now() >= alarmTarget.getTime()){
+   clearInterval(alarmCheckInterval);
+   alarmCheckInterval = null;
+   alarmTarget = null;
+   alarmStatus.textContent = "Alarm is ringing! Press Stop Alarm to silence it.";
+   playAlarmSound();
+   alarmRepeatInterval = setInterval(playAlarmSound,2500);
+  }
+ },500);
+});
+
+stopAlarmButton.addEventListener("click",()=>{
+ clearInterval(alarmCheckInterval);
+ clearInterval(alarmRepeatInterval);
+ alarmCheckInterval = null;
+ alarmRepeatInterval = null;
+ alarmTarget = null;
+ stopAlarmButton.disabled = true;
+ alarmStatus.textContent = "Alarm stopped. Set a new time whenever you like.";
+});
+
+/* =====================================
+   6. EARTH SOUNDS
+===================================== */
+
+const soundTypeSelect = document.getElementById("soundType");
+const earthAudio = document.getElementById("earthAudio");
+const volumeControl = document.getElementById("volumeControl");
+let activeAudioUrl = null;
+earthAudio.volume = Number(volumeControl.value);
+
+function createNatureSound(type){
+ const sampleRate = 11025;
+ const duration = 8;
+ const sampleCount = sampleRate*duration;
+ const buffer = new ArrayBuffer(44+sampleCount*2);
+ const view = new DataView(buffer);
+ const writeText = (offset,text)=>{
+  for(let i=0;i<text.length;i++) view.setUint8(offset+i,text.charCodeAt(i));
+ };
+ writeText(0,"RIFF");
+ view.setUint32(4,36+sampleCount*2,true);
+ writeText(8,"WAVE");
+ writeText(12,"fmt ");
+ view.setUint32(16,16,true);
+ view.setUint16(20,1,true);
+ view.setUint16(22,1,true);
+ view.setUint32(24,sampleRate,true);
+ view.setUint32(28,sampleRate*2,true);
+ view.setUint16(32,2,true);
+ view.setUint16(34,16,true);
+ writeText(36,"data");
+ view.setUint32(40,sampleCount*2,true);
+ let filteredNoise = 0;
+ let phase = 0;
+
+ for(let i=0;i<sampleCount;i++){
+  const t = i/sampleRate;
+  const noise = Math.random()*2-1;
+  let sample = 0;
+  if(type === "Ocean"){
+   filteredNoise += (noise-filteredNoise)*0.02;
+   const wavePhase = (t%8)/8;
+   const surge = wavePhase<0.4 ? Math.pow(wavePhase/0.4,2) : Math.exp(-(wavePhase-0.4)*5.5);
+   const foam = Math.exp(-Math.pow((wavePhase-0.4)/0.11,2));
+   const waterNoise = noise-filteredNoise;
+   sample = filteredNoise*surge*3 + waterNoise*(surge*0.45+foam*0.55);
+  }else if(type === "Rain"){
+   sample = noise*0.28;
+   if(Math.random()<0.0007) phase = 1;
+   if(phase>0){
+    sample += Math.sin(2*Math.PI*1100*t)*phase*0.18;
+    phase *= 0.996;
+   }
+  }else if(type === "Wind"){
+   filteredNoise += (noise-filteredNoise)*0.012;
+   const gust = 0.55+0.45*Math.sin(2*Math.PI*t/6);
+   sample = filteredNoise*gust*3;
+  }else{
+   filteredNoise += (noise-filteredNoise)*0.025;
+   sample = filteredNoise*1.8;
+   const chirpPhase = t%2.7;
+   if(chirpPhase>0.4 && chirpPhase<0.52){
+    const progress = (chirpPhase-0.4)/0.12;
+    sample += Math.sin(2*Math.PI*(2600+progress*900)*t)*Math.sin(Math.PI*progress)*0.12;
+   }
+  }
+  const fade = Math.min(1,t/0.08,(duration-t)/0.08);
+  sample = Math.max(-1,Math.min(1,sample*fade*0.45));
+  view.setInt16(44+i*2,sample*32767,true);
+ }
+ return URL.createObjectURL(new Blob([buffer],{type:"audio/wav"}));
+}
+
+function useAudioUrl(url,autoplay){
+ const previousUrl = activeAudioUrl;
+ activeAudioUrl = url;
+ earthAudio.src = url;
+ earthAudio.load();
+ if(previousUrl) setTimeout(()=>URL.revokeObjectURL(previousUrl),1000);
+ if(autoplay) earthAudio.play().catch(()=>{});
+}
+function selectNatureSound(type,autoplay){useAudioUrl(createNatureSound(type),autoplay);}
+selectNatureSound(soundTypeSelect.value,false);
+soundTypeSelect.addEventListener("change",event=>selectNatureSound(event.target.value,true));
+volumeControl.addEventListener("input",event=>{earthAudio.volume = Number(event.target.value);});
+document.getElementById("audioFile").addEventListener("change",event=>{
+ const file = event.target.files[0];
+ if(!file) return;
+ if(!file.type.startsWith("audio/")){event.target.value = "";return;}
+ useAudioUrl(URL.createObjectURL(file),true);
+});
+window.addEventListener("beforeunload",()=>{if(activeAudioUrl) URL.revokeObjectURL(activeAudioUrl);});
+
+/* =====================================
+   7. PROFILE IMAGE
+===================================== */
+
+document.getElementById("avatarButton").addEventListener("click",()=>{
+ document.getElementById("avatarInput").click();
+});
+document.getElementById("avatarInput").addEventListener("change",event=>{
+ const file = event.target.files[0];
+ if(!file) return;
+ if(!file.type.startsWith("image/")){event.target.value = "";return;}
+ const reader = new FileReader();
+ reader.onload = function(e){
+  const img = document.getElementById("avatarImage");
+  const placeholder = document.getElementById("avatarPlaceholder");
+  img.onerror = function(){
+   img.removeAttribute("src");
+   img.style.display = "none";
+   placeholder.style.display = "";
+   event.target.value = "";
+  };
+  img.src = e.target.result;
+  img.style.display = "block";
+  placeholder.style.display = "none";
+ };
+ reader.onerror = ()=>{event.target.value = "";};
+ reader.readAsDataURL(file);
+});
+
+/* =====================================
+   8. THEMES
+===================================== */
+
+const themes = {
+ ocean:{bg:"#081725",panel:"#11283c",panel2:"#18354d",line:"#2a4962",text:"#edf6ff",muted:"#a9bdcf",accent:"#7ccfc4",accent2:"#b5d8cf"},
+ forest:{bg:"#101b19",panel:"#1b3029",panel2:"#294238",line:"#3d5b4d",text:"#eff5ed",muted:"#b8c8bb",accent:"#a6c7a0",accent2:"#c9dfc0"},
+ lavender:{bg:"#191725",panel:"#29263a",panel2:"#38334d",line:"#514b68",text:"#f4f0fb",muted:"#c3bbd2",accent:"#b9acd9",accent2:"#d9cfee"},
+ sand:{bg:"#211e18",panel:"#383126",panel2:"#4b4233",line:"#685b46",text:"#f7f0e4",muted:"#cfc2ad",accent:"#d5bd91",accent2:"#e8d7b6"}
+};
+document.getElementById("themeSelect").addEventListener("change",event=>{
+ const theme = themes[event.target.value];
+ if(!theme) return;
+ Object.entries(theme).forEach(([key,value])=>{
+  document.documentElement.style.setProperty("--"+key,value);
+ });
+});
+
+/* =====================================
+   9. TEXT SIZE
+===================================== */
+
+let fontSize = 16;
+function setFontSize(size){
+ fontSize = Math.max(14,Math.min(22,size));
+ document.documentElement.style.setProperty("--font-size",fontSize+"px");
+}
+document.getElementById("smallerText").addEventListener("click",()=>setFontSize(fontSize-1));
+document.getElementById("largerText").addEventListener("click",()=>setFontSize(fontSize+1));
+document.getElementById("normalText").addEventListener("click",()=>setFontSize(16));
+
+/* =====================================
+   10. SHARED HELPER FUNCTIONS
+===================================== */
+
+function escapeHTML(value){
+ return String(value ?? "").replace(/[&<>"']/g,char=>({
+  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+ })[char]);
+}
+function averageValue(items,key){
+ const values = items
+  .filter(item =>
+   item[key] !== null &&
+   item[key] !== undefined &&
+   item[key] !== ""
+  )
+  .map(item => Number(item[key]))
+  .filter(value => Number.isFinite(value));
+
+ if(!values.length) return null;
+
+ return values.reduce((sum,value)=>sum+value,0)/values.length;
+}
+function formatChange(current,baseline){
+ if(baseline===null || baseline===0) return "No baseline";
+ const change = ((current-baseline)/baseline)*100;
+ const direction = change>0 ? "increased" : "decreased";
+ return `${direction} by ${Math.abs(change).toFixed(1)}%`;
+}
+
+/* =====================================
+   11. ALERT HISTORY
+===================================== */
+
+function getAlertHistory(){
+ try{
+  const saved = JSON.parse(localStorage.getItem(ALERT_STORAGE_KEY) || "[]");
+  return Array.isArray(saved) ? saved : [];
+ }catch(error){
+  console.error("Could not read alert history:",error);
+  return [];
+ }
+}
+function saveAlertHistory(history){
+ try{localStorage.setItem(ALERT_STORAGE_KEY,JSON.stringify(history.slice(-100)));}
+ catch(error){console.error("Could not save alert history:",error);}
+}
+function renderAlertHistory(){
+ const container = document.getElementById("alertHistory");
+ if(!container) return;
+ const history = getAlertHistory().slice().reverse();
+ if(!history.length){
+  container.innerHTML = '<p class="hint">No alerts recorded.</p>';
+  return;
+ }
+ container.innerHTML = history.map(alert=>`
+  <div class="alert-history-item">
+   <strong>${escapeHTML(alert.title)}</strong>
+   <p>${escapeHTML(alert.message)}</p>
+   <small class="hint">${escapeHTML(alert.date)}</small>
+  </div>
+ `).join("");
+}
+
+/* =====================================
+   12. RECOMMENDED ACTIONS ENGINE
+===================================== */
+
+function getRecommendedAction(alert){
+ const recommendations = {
+  "Heart Rate":{
+   priority:"medium",
+   action:"Verify the reading and repeat the measurement according to the monitoring protocol. Check the sensor and measurement conditions.",
+   followUp:"Compare subsequent readings with the astronaut's established personal baseline.",
+   escalation:"Notify the medical team if the change persists, is unusual for the astronaut, or is accompanied by concerning symptoms."
+  },
+  "Sleep Pattern":{
+   priority:"low",
+   action:"Review the recent sleep schedule and check whether environmental conditions or mission activities affected the sleep period.",
+   followUp:"Continue recording sleep duration and quality over subsequent monitoring periods.",
+   escalation:"Notify the medical team if sleep disruption continues or significantly affects daily functioning."
+  },
+  "HRV Trend":{
+   priority:"medium",
+   action:"Verify measurement conditions and check for possible sensor or recording errors. Review HRV alongside other available health indicators.",
+   followUp:"Compare subsequent HRV readings with the astronaut's personal baseline rather than relying on one reading.",
+   escalation:"Discuss persistent or unusual changes with the medical team, especially when other indicators or symptoms also change."
+  },
+  "Activity Change":{
+   priority:"low",
+   action:"Review the activity record and confirm whether the change reflects a planned adjustment or an incomplete measurement.",
+   followUp:"Continue monitoring activity and recovery patterns.",
+   escalation:"Notify the medical team if the change is unexplained or associated with unusual fatigue or other concerning symptoms."
+  }
+ };
+ return recommendations[alert.title] || {
+  priority:"medium",
+  action:"Verify the measurement and review the relevant monitoring records.",
+  followUp:"Continue monitoring and compare with previous measurements.",
+  escalation:"Contact the medical team if the change persists or is associated with concerning symptoms."
+ };
+}
+
+function renderRecommendedActions(alerts){
+ const container = document.getElementById("recommendedActions");
+ if(!container) return;
+ if(!alerts.length){
+  container.innerHTML = `
+   <div class="health-ok">
+    <h3>✓ No action currently required</h3>
+    <p>No significant changes were detected by the current experimental trend rules.</p>
+    <p>Continue routine monitoring and follow the mission's established health protocols.</p>
+   </div>`;
+  return;
+ }
+ const priorityLabels = {low:"Low Priority",medium:"Medium Priority",high:"High Priority"};
+ container.innerHTML = alerts.map(alert=>{
+  const recommendation = getRecommendedAction(alert);
+  const priorityClass = "priority-" + recommendation.priority;
+  return `
+   <article class="action-card">
+    <span class="priority ${priorityClass}">${priorityLabels[recommendation.priority]}</span>
+    <h4>${escapeHTML(alert.title)}</h4>
+    <p><span class="action-label">Detected change:</span> ${escapeHTML(alert.message)}</p>
+    <p><span class="action-label">Recommended action:</span> ${escapeHTML(recommendation.action)}</p>
+    <p><span class="action-label">Follow-up:</span> ${escapeHTML(recommendation.followUp)}</p>
+    <p><span class="action-label">Medical escalation:</span> ${escapeHTML(recommendation.escalation)}</p>
+   </article>`;
+ }).join("");
+}
+
+/* =====================================
+   13. MAIN HEALTH ANALYSIS
+===================================== */
+
+function analyzeAstronautHealth(){
+ const result = document.getElementById("smartHealthResult");
+ if(!result) return;
+ const data = readTestLabData();
+ const measurements = (data.measurements || []).filter(item=>item && typeof item==="object");
+ const fields = {
+  hr:document.getElementById("hrAnalysis"),
+  sleep:document.getElementById("sleepAnalysis"),
+  hrv:document.getElementById("hrvAnalysis"),
+  activity:document.getElementById("activityAnalysis")
+ };
+
+ if(measurements.length<2){
+  result.innerHTML = `<div class="health-ok">At least two measurements are required for trend analysis.</div>`;
+  Object.values(fields).forEach(element=>{if(element) element.textContent = "Not enough data.";});
+  renderRecommendedActions([]);
+  renderAlertHistory();
+  return;
+ }
+
+ const latest = measurements[measurements.length-1];
+ const previous = measurements.slice(0,-1).slice(-5);
+ const alerts = [];
+ function addAlert(title,message){alerts.push({title,message});}
+
+ /* HEART RATE */
+ const currentHR = Number(latest.heartRate);
+ const averageHR = averageValue(previous,"heartRate");
+ if(latest.heartRate!=null && Number.isFinite(currentHR) && averageHR!==null){
+  fields.hr.textContent = `Latest: ${currentHR} BPM. Recent average: ${averageHR.toFixed(1)} BPM.`;
+  if(averageHR!==0 && Math.abs(currentHR-averageHR)/averageHR>=0.20){
+   addAlert("Heart Rate",`A noticeable change was detected. ${formatChange(currentHR,averageHR)} compared with recent measurements.`);
+  }
+ }else{fields.hr.textContent = "Insufficient heart-rate data.";}
+
+ /* SLEEP */
+ const currentSleep = Number(latest.sleep);
+ const averageSleep = averageValue(previous,"sleep");
+ if(latest.sleep!=null && Number.isFinite(currentSleep) && averageSleep!==null){
+  fields.sleep.textContent = `Latest: ${currentSleep} hours. Recent average: ${averageSleep.toFixed(1)} hours.`;
+  if(Math.abs(currentSleep-averageSleep)/Math.max(averageSleep,0.1)>=0.20){
+   addAlert("Sleep Pattern",`Sleep duration changed noticeably. ${formatChange(currentSleep,averageSleep)} compared with recent measurements.`);
+  }
+ }else{fields.sleep.textContent = "Insufficient sleep data.";}
+
+ /* HRV */
+ const currentHRV = Number(latest.hrv);
+ const averageHRV = averageValue(previous,"hrv");
+ if(latest.hrv!=null && Number.isFinite(currentHRV) && averageHRV!==null){
+  fields.hrv.textContent = `Latest: ${currentHRV} ms. Recent average: ${averageHRV.toFixed(1)} ms.`;
+  if(Math.abs(currentHRV-averageHRV)/Math.max(averageHRV,0.1)>=0.20){
+   addAlert("HRV Trend",`HRV changed noticeably. ${formatChange(currentHRV,averageHRV)} compared with recent measurements.`);
+  }
+ }else{fields.hrv.textContent = "Insufficient HRV data.";}
+
+ /* ACTIVITY */
+ const activityValues = previous.map(item=>item.activity).filter(Boolean);
+ const currentActivity = latest.activity || "Not recorded";
+ const previousActivity = activityValues.length ? activityValues[activityValues.length-1] : null;
+ fields.activity.textContent = `Latest: ${currentActivity}. ` +
+  (previousActivity ? `Previous recorded level: ${previousActivity}.` : "No previous activity record.");
+ if(previousActivity && previousActivity!==currentActivity){
+  addAlert("Activity Change",`Activity category changed from ${previousActivity} to ${currentActivity}.`);
+ }
+
+ /* SAVE ALERT HISTORY */
+ const history = getAlertHistory();
+ const measurementId = [
+  latest.timestamp || "unknown",measurements.length,latest.heartRate,
+  latest.sleep,latest.hrv,latest.systolic,latest.diastolic,latest.activity
+ ].join("_");
+
+ alerts.forEach(alert=>{
+  const alertId = measurementId + "_" + alert.title;
+  const alreadySaved = history.some(item=>item.id===alertId);
+  if(!alreadySaved){
+   history.push({
+    id:alertId,title:alert.title,message:alert.message,
+    date:latest.timestamp ? new Date(latest.timestamp).toLocaleString() : new Date().toLocaleString()
+   });
+  }
+ });
+
+ saveAlertHistory(history);
+ renderAlertHistory();
+ renderRecommendedActions(alerts);
+
+ if(!alerts.length){
+  result.innerHTML = `
+   <div class="health-ok">
+    <h3>✓ No major changes detected</h3>
+    <p>No large differences were detected compared with recent measurements.</p>
+   </div>`;
+  return;
+ }
+
+ result.innerHTML = `
+  <div class="health-alert">
+   <h3>⚠️ ${alerts.length} change(s) detected</h3>
+   ${alerts.map(alert=>`
+    <div class="health-alert-item">
+     <strong>${escapeHTML(alert.title)}</strong>
+     <p>${escapeHTML(alert.message)}</p>
+    </div>`).join("")}
+  </div>`;
+}
+
+/* =====================================
+   14. PSYCHOLOGICAL WELLBEING
+===================================== */
+
+const moodSelect = document.getElementById("moodSelect");
+const stressSelect = document.getElementById("stressSelect");
+const connectionSelect = document.getElementById("connectionSelect");
+const wellbeingNote = document.getElementById("wellbeingNote");
+
+function getWellbeingEntries(){
+ try{
+  const saved = JSON.parse(localStorage.getItem(WELLBEING_STORAGE_KEY) || "[]");
+  return Array.isArray(saved) ? saved : [];
+ }catch(error){
+  console.error("Could not read wellbeing data:",error);
+  return [];
+ }
+}
+function saveWellbeingEntries(entries){
+ try{
+  localStorage.setItem(WELLBEING_STORAGE_KEY,JSON.stringify(entries.slice(-100)));
+  return true;
+ }catch(error){
+  console.error("Could not save wellbeing data:",error);
+  return false;
+ }
+}
+function getWellbeingSuggestions(entry){
+ const suggestions = [];
+ if(entry.stress >= 4){
+  suggestions.push("You reported a high stress level. Consider taking a quiet break, using an approved relaxation activity, or speaking with someone you trust.");
+ }else if(entry.stress === 3){
+  suggestions.push("You reported moderate stress. A short pause and a review of your workload may help you understand what you need today.");
+ }
+ if(entry.mood === "Difficult" || entry.mood === "Very difficult"){
+  suggestions.push("You reported a difficult mood. Consider reaching out to a trusted crew member or an appropriate mental-health professional.");
+ }
+ if(entry.connection <= 2){
+  suggestions.push("You reported feeling less connected. If possible, consider arranging a conversation with a trusted crew member or an approved family communication session.");
+ }
+ if(!suggestions.length){
+  suggestions.push("Thank you for checking in. Continue your usual wellbeing routine and make time for activities that help you feel comfortable and connected.");
+ }
+ return suggestions;
+}
+
+function renderWellbeing(){
+ const entries = getWellbeingEntries();
+ const latest = entries.length ? entries[entries.length - 1] : null;
+ document.getElementById("checkinCount").textContent = entries.length;
+
+ if(!latest){
+  document.getElementById("latestMood").textContent = "—";
+  document.getElementById("latestStress").textContent = "—";
+  document.getElementById("latestConnection").textContent = "—";
+  document.getElementById("latestMoodDate").textContent = "No check-in yet.";
+  document.getElementById("wellbeingSuggestions").textContent = "Complete a check-in to receive supportive suggestions.";
+  document.getElementById("wellbeingHistory").innerHTML = '<p class="hint">No check-ins recorded yet.</p>';
+  return;
+ }
+
+ document.getElementById("latestMood").textContent = latest.mood;
+ document.getElementById("latestStress").textContent = latest.stress + " / 5";
+ document.getElementById("latestConnection").textContent = latest.connection + " / 5";
+ document.getElementById("latestMoodDate").textContent = new Date(latest.timestamp).toLocaleString();
+
+ const suggestions = getWellbeingSuggestions(latest);
+ document.getElementById("wellbeingSuggestions").innerHTML =
+  suggestions.map(item=>`<p>• ${escapeHTML(item)}</p>`).join("");
+
+ const history = entries.slice().reverse();
+ document.getElementById("wellbeingHistory").innerHTML = history.map(entry=>`
+  <div class="wellbeing-entry">
+   <strong>${escapeHTML(entry.mood)}</strong>
+   <p>Stress: ${entry.stress}/5 · Social connection: ${entry.connection}/5</p>
+   <small class="hint">${escapeHTML(new Date(entry.timestamp).toLocaleString())}</small>
+   ${entry.note ? `<p>${escapeHTML(entry.note)}</p>` : ""}
+  </div>`).join("");
+}
+
+/* SAVE CHECK-IN */
+document.getElementById("saveWellbeing").addEventListener("click",()=>{
+ const entry = {
+  mood:moodSelect.value,
+  stress:Number(stressSelect.value),
+  connection:Number(connectionSelect.value),
+  note:wellbeingNote.value.trim(),
+  timestamp:new Date().toISOString()
+ };
+ const entries = getWellbeingEntries();
+ entries.push(entry);
+ if(!saveWellbeingEntries(entries)){
+  alert("Could not save your check-in. Please try again.");
+  return;
+ }
+ wellbeingNote.value = "";
+ renderWellbeing();
+ alert("Your wellbeing check-in has been saved.");
+});
+
+/* DELETE WELLBEING DATA */
+document.getElementById("deleteWellbeing").addEventListener("click",()=>{
+ const confirmed = confirm("Delete all wellbeing check-ins and personal notes from this browser?");
+ if(!confirmed) return;
+ try{
+  localStorage.removeItem(WELLBEING_STORAGE_KEY);
+  wellbeingNote.value = "";
+  renderWellbeing();
+ }catch(error){
+  console.error("Could not delete wellbeing data:",error);
+  alert("Could not delete the wellbeing data.");
+ }
+});
+
+/* =====================================
+   15. INITIALIZE DASHBOARD
+===================================== */
+
+initializeBackgroundGallery();
+loadTestLabData();
+analyzeAstronautHealth();
+renderAlertHistory();
+renderWellbeing();
+/* =====================================
+   16. HEALTH ANALYTICS CHART ENGINE
+===================================== */
+
+function drawHealthChart(canvasId, datasets, labels, unit){
+ const canvas = document.getElementById(canvasId);
+ if(!canvas) return;
+
+ const rect = canvas.getBoundingClientRect();
+ const width = Math.max(rect.width,280);
+ const height = 220;
+ const ratio = window.devicePixelRatio || 1;
+
+ canvas.width = width * ratio;
+ canvas.height = height * ratio;
+
+ const ctx = canvas.getContext("2d");
+ ctx.scale(ratio,ratio);
+ ctx.clearRect(0,0,width,height);
+
+ const validSets = datasets.map(set=>({
+  ...set,
+  values:set.values.map(Number)
+ }));
+
+ const allValues = validSets.flatMap(set=>set.values)
+  .filter(Number.isFinite);
+
+ if(!allValues.length){
+  ctx.fillStyle = getComputedStyle(document.documentElement)
+   .getPropertyValue("--muted");
+  ctx.font = "13px Arial";
+  ctx.textAlign = "center";
+  ctx.fillText("No recorded data yet",width/2,height/2);
+  return;
+ }
+
+ let min = Math.min(...allValues);
+ let max = Math.max(...allValues);
+
+ if(min === max){
+  min -= 1;
+  max += 1;
+ }
+
+ const range = max-min;
+ min -= range*.15;
+ max += range*.15;
+
+ const padding = {left:42,right:15,top:18,bottom:35};
+ const plotWidth = width-padding.left-padding.right;
+ const plotHeight = height-padding.top-padding.bottom;
+
+ const x = index => labels.length === 1
+  ? padding.left+plotWidth/2
+  : padding.left+(index/(labels.length-1))*plotWidth;
+
+ const y = value =>
+  padding.top+((max-value)/(max-min))*plotHeight;
+
+ ctx.font = "10px Arial";
+ ctx.textAlign = "right";
+ ctx.fillStyle = "#94a3b8";
+ ctx.strokeStyle = "rgba(148,163,184,.2)";
+ ctx.lineWidth = 1;
+
+ for(let i=0;i<=4;i++){
+  const lineY = padding.top+(plotHeight/4)*i;
+  const value = max-(range*1.3/4)*i;
+
+  ctx.beginPath();
+  ctx.moveTo(padding.left,lineY);
+  ctx.lineTo(width-padding.right,lineY);
+  ctx.stroke();
+
+  ctx.fillText(
+   (max-(max-min)*i/4).toFixed(0),
+   padding.left-7,
+   lineY+3
+  );
+ }
+
+ validSets.forEach(set=>{
+  ctx.beginPath();
+  ctx.strokeStyle = set.color;
+  ctx.lineWidth = 2.5;
+  ctx.lineJoin = "round";
+  ctx.lineCap = "round";
+
+  let started = false;
+
+  set.values.forEach((value,index)=>{
+   if(!Number.isFinite(value)) return;
+
+   if(!started){
+    ctx.moveTo(x(index),y(value));
+    started = true;
+   }else{
+    ctx.lineTo(x(index),y(value));
+   }
+  });
+
+  ctx.stroke();
+
+  set.values.forEach((value,index)=>{
+   if(!Number.isFinite(value)) return;
+
+   ctx.beginPath();
+   ctx.arc(x(index),y(value),3.5,0,Math.PI*2);
+   ctx.fillStyle = set.color;
+   ctx.fill();
+  });
+ });
+
+ ctx.fillStyle = "#94a3b8";
+ ctx.font = "10px Arial";
+ ctx.textAlign = "center";
+
+ if(labels.length){
+  ctx.fillText(labels[0],padding.left,height-10);
+  if(labels.length>1){
+   ctx.fillText(labels[labels.length-1],width-padding.right,height-10);
+  }
+ }
+}
+
+function updateHealthCharts(){
+ const measurements = readTestLabData().measurements
+  .filter(item=>item && typeof item==="object")
+  .filter(item=>item.timestamp)
+  .slice()
+  .sort((a,b)=>new Date(a.timestamp)-new Date(b.timestamp));
+
+ const labels = measurements.map(item=>{
+  const date = new Date(item.timestamp);
+  return Number.isNaN(date.getTime())
+   ? "Unknown"
+   : date.toLocaleDateString("en",{month:"short",day:"numeric"});
+ });
+
+ const values = key => measurements.map(item=>{
+  if(item[key]===null || item[key]==="" || item[key]===undefined) return NaN;
+  const value = Number(item[key]);
+  return Number.isFinite(value) ? value : NaN;
+ });
+
+ drawHealthChart(
+  "heartRateChart",
+  [{values:values("heartRate"),color:"#fb7185"}],
+  labels,
+  "BPM"
+ );
+
+ drawHealthChart(
+  "sleepChart",
+  [{values:values("sleep"),color:"#a78bfa"}],
+  labels,
+  "Hours"
+ );
+
+ drawHealthChart(
+  "bloodPressureChart",
+  [
+   {values:values("systolic"),color:"#38bdf8"},
+   {values:values("diastolic"),color:"#34d399"}
+  ],
+  labels,
+  "mmHg"
+ );
+
+ drawHealthChart(
+  "hrvChart",
+  [{values:values("hrv"),color:"#f0c77b"}],
+  labels,
+  "HRV"
+ );
+
+ const status = document.getElementById("chartStatus");
+
+ if(status){
+  status.textContent = measurements.length
+   ? `Showing ${measurements.length} recorded measurement(s) from Test Lab.`
+   : "No measurements available. Add data through Test Lab to populate these charts.";
+ }
+}
+
+document.getElementById("refreshCharts")
+ .addEventListener("click",updateHealthCharts);
+
+window.addEventListener("resize",updateHealthCharts);
+
+window.addEventListener("storage",event=>{
+ if(event.key===STORAGE_KEY) updateHealthCharts();
+});
+/* =====================================
+   17. AST RONEX HEALTH REPORT
+===================================== */
+
+function generateHealthReport(){
+  const data = readTestLabData();
+  const measurements = data.measurements
+    .filter(item => item && typeof item === "object")
+    .slice()
+    .sort((a,b) => {
+ const timeA = new Date(a.timestamp).getTime();
+ const timeB = new Date(b.timestamp).getTime();
+
+ return (Number.isFinite(timeA) ? timeA : 0) -
+        (Number.isFinite(timeB) ? timeB : 0);
+});
+  if(!measurements.length){
+    alert("No measurements available. Add data through Test Lab first.");
+    return;
+  }
+
+  const astronaut = data.astronaut || {};
+  const latest = measurements[measurements.length - 1];
+   const hasSimulatedData = measurements.some(
+ item => item.dataSource === "SIMULATED"
+);
+
+const dataClassification = hasSimulatedData
+ ? "SIMULATED / EXPERIMENTAL DATA"
+ : "Source not independently verified";
+const average = key => {
+ const values = measurements
+  .filter(item =>
+   item[key] !== null &&
+   item[key] !== undefined &&
+   item[key] !== ""
+  )
+  .map(item => Number(item[key]))
+  .filter(Number.isFinite);
+
+ return values.length
+  ? (
+     values.reduce((sum,value)=>sum+value,0)/values.length
+    ).toFixed(1)
+  : "Not available";
+};
+  const format = value =>
+    value == null || value === "" ? "Not recorded" : escapeHTML(value);
+
+  const date = value => {
+    if(!value) return "Unknown";
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime())
+      ? "Unknown"
+      : parsed.toLocaleString();
+  };
+
+  const chartImages = [
+    ["Heart Rate", "heartRateChart"],
+    ["Sleep Duration", "sleepChart"],
+    ["Blood Pressure", "bloodPressureChart"],
+    ["HRV", "hrvChart"]
+  ].map(([title,id]) => {
+    const canvas = document.getElementById(id);
+    if(!canvas) return "";
+
+    try {
+      return `
+        <div class="chart">
+          <h3>${title}</h3>
+          <img src="${canvas.toDataURL("image/png")}" alt="${title} chart">
+        </div>`;
+    } catch(error) {
+      return `<p>${title} chart could not be included.</p>`;
+    }
+  }).join("");
+
+  const rows = measurements.map((item,index)=>`
+    <tr>
+      <td>${index+1}</td>
+      <td>${date(item.timestamp)}</td>
+      <td>${format(item.heartRate)}</td>
+      <td>${format(item.sleep)}</td>
+      <td>${format(item.systolic)} / ${format(item.diastolic)}</td>
+      <td>${format(item.hrv)}</td>
+      <td>${format(item.activity)}</td>
+    </tr>
+  `).join("");
+
+  const alerts = getAlertHistory().map(alert=>`
+    <div class="alert">
+      <strong>${format(alert.title)}</strong>
+      <p>${format(alert.message)}</p>
+      <small>${format(alert.date)}</small>
+    </div>
+  `).join("") || "<p>No recorded alerts.</p>";
+
+  const reportWindow = window.open("", "_blank");
+
+  if(!reportWindow){
+    alert("Please allow pop-ups for AstroNex to generate the report.");
+    return;
+  }
+
+  reportWindow.document.write(`
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <title>AstroNex Health Report</title>
+      <style>
+        body{
+          font-family:Arial,sans-serif;
+          color:#172b3a;
+          max-width:1000px;
+          margin:35px auto;
+          padding:25px;
+          line-height:1.5;
+        }
+        h1,h2{color:#176b70}
+        h1{border-bottom:3px solid #176b70;padding-bottom:12px}
+        .meta,.summary,.chart,.alert{
+          border:1px solid #d5e0e6;
+          border-radius:9px;
+          padding:15px;
+          margin:14px 0;
+        }
+        .grid{
+          display:grid;
+          grid-template-columns:repeat(2,minmax(0,1fr));
+          gap:12px;
+        }
+        .chart img{width:100%;height:auto}
+        table{width:100%;border-collapse:collapse;font-size:12px}
+        th,td{border:1px solid #cbd5dc;padding:8px;text-align:left}
+        th{background:#e9f2f3}
+        .alert{border-left:4px solid #d49b40}
+        .notice{background:#fff5df;padding:12px;border-radius:8px}
+        .actions{margin-bottom:20px}
+        button{padding:10px 18px;cursor:pointer}
+        @media(max-width:650px){
+          .grid{grid-template-columns:1fr}
+          body{padding:12px}
+          table{font-size:10px}
+        }
+        @media print{
+          body{margin:0;padding:10px}
+          .actions{display:none}
+          .chart,.summary,.meta,.alert{break-inside:avoid}
+          h2{break-after:avoid}
+          table{break-inside:auto}
+          tr{break-inside:avoid}
+        }
+      </style>
+    </head>
+    <body>
+      <div class="actions">
+        <button onclick="window.print()">Print / Save as PDF</button>
+      </div>
+
+      <h1>AstroNex — Astronaut Health Report</h1>
+
+      <div class="meta">
+        <strong>Report generated:</strong> ${date(new Date().toISOString())}<br>
+        <strong>Report ID:</strong> ANX-${Date.now()}<br>
+        <strong>Data source:</strong> Test Lab<br>
+        <strong>Data classification:</strong> ${dataClassification}
+      </div>
+
+      <h2>1. Astronaut Profile</h2>
+      <div class="summary">
+        <p><strong>Name:</strong> ${format(astronaut.name)}</p>
+        <p><strong>Astronaut ID:</strong> ${format(astronaut.id)}</p>
+      </div>
+
+      <h2>2. Latest Measurements</h2>
+      <div class="grid">
+        <div class="summary">
+          <strong>Heart Rate</strong><br>
+          ${format(latest.heartRate)} BPM
+        </div>
+        <div class="summary">
+          <strong>Sleep Duration</strong><br>
+          ${format(latest.sleep)} hours
+        </div>
+        <div class="summary">
+          <strong>Blood Pressure</strong><br>
+          ${format(latest.systolic)} / ${format(latest.diastolic)} mmHg
+        </div>
+        <div class="summary">
+          <strong>HRV</strong><br>
+          ${format(latest.hrv)} ms
+        </div>
+      </div>
+
+      <h2>3. Measurement Summary</h2>
+      <div class="summary">
+        <p>Total recorded measurements: ${measurements.length}</p>
+        <p>Average heart rate: ${average("heartRate")} BPM</p>
+        <p>Average sleep: ${average("sleep")} hours</p>
+        <p>Average HRV: ${average("hrv")} ms</p>
+      </div>
+
+      <h2>4. Health Analytics</h2>
+      <div class="grid">${chartImages}</div>
+
+      <h2>5. Measurement History</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Date</th>
+            <th>HR</th>
+            <th>Sleep</th>
+            <th>Blood Pressure</th>
+            <th>HRV</th>
+            <th>Activity</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+
+      <h2>6. Health Alerts</h2>
+      ${alerts}
+
+      <h2>7. Report Notes</h2>
+      <div class="notice">
+        This report summarizes recorded measurements and experimental
+        trend analysis. It is not a medical diagnosis or a substitute
+        for professional medical assessment.
+
+        <br><br>
+        Simulated measurements must be clearly distinguished from
+        real astronaut health data. All clinical decisions must follow
+        approved medical and mission protocols.
+      </div>
+
+      <p><strong>AstroNex — Astronaut Health Monitoring</strong></p>
+
+    </body>
+    </html>
+  `);
+
+  reportWindow.document.close();
+}
+
+document.getElementById("generateReport")
+  .addEventListener("click",generateHealthReport);
+setInterval(updateHealthCharts,2000);
+updateHealthCharts();
+</script>
+</body>
+</html>
